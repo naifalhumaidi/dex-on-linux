@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=Dex FHD
+GenericName=Samsung DeX
+Comment=Samsung DeX on a virtual display, FHD 1920x1200 (16:10)
+Exec=/usr/bin/scrcpy --new-display=1920x1200/224 --fullscreen --gamepad=uhid
+Icon=@ICON_DIR@/dex-monitor.svg
+Terminal=false
+Type=Application
+Categories=Utility;RemoteAccess;
+Keywords=android;phone;dex;desktop;scrcpy;controller;
+StartupNotify=true

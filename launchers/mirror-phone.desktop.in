@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=Mirror Phone
+GenericName=Android Remote Control
+Comment=Mirror the phone screen (native resolution, up to 120Hz)
+Exec=/usr/bin/scrcpy --gamepad=uhid
+Icon=@ICON_DIR@/phone-mirror.svg
+Terminal=false
+Type=Application
+Categories=Utility;RemoteAccess;
+Keywords=android;phone;mirror;scrcpy;dex;controller;
+StartupNotify=true

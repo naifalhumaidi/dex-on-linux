@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=Dex 2K
+GenericName=Samsung DeX
+Comment=Samsung DeX on a virtual display, full 2K 2560x1600 (matches panel 1:1)
+Exec=/usr/bin/scrcpy --new-display=2560x1600/224 --fullscreen --gamepad=uhid
+Icon=@ICON_DIR@/dex-monitor.svg
+Terminal=false
+Type=Application
+Categories=Utility;RemoteAccess;
+Keywords=android;phone;dex;desktop;scrcpy;2k;controller;
+StartupNotify=true
