@@ -1,83 +1,70 @@
 # scrcpy + DeX on Linux
 
 Use your Galaxy as a Linux desktop. Replaces the retired **DeX for PC** app.
+**Tested only on CachyOS/KDE with a Galaxy Z Fold 6 (Android 16).** Should work
+on any distro with scrcpy 3+.
 
-Tested on CachyOS/KDE with Galaxy Z Fold 6 (Android 16).
-
-## Install
+## TL;DR
 
 ```bash
-./scripts/install.sh
+./scripts/install.sh          # installs scrcpy + adb, makes 3 launchers
 ```
 
-Installs scrcpy + android-tools, copies icons, creates 3 launchers.
+Phone: Build number ×7 → Developer options → USB debugging ON → plug in USB →
+*File transfer* → accept **Allow USB debugging**.
+Check with `adb devices`.
 
-On the phone, once: Build number ×7 → Developer options → **USB debugging ON**
-→ plug in USB → *File transfer* → accept **Allow USB debugging**.
+You get 3 app-menu launchers: **Mirror Phone** (gaming, 120Hz) · **Dex FHD** ·
+**Dex 2K** (real desktop, 60Hz).
 
-Check: `adb devices` shows your phone.
+## Requirements
 
-## Launchers
+- scrcpy **3+** (needs `--new-display`), `adb`, a USB data cable
+- Phone with Android 16 / One UI 8 DeX
 
-| Name | Use for |
-|---|---|
-| **Mirror Phone** | Gaming — real screen, 120Hz |
-| **Dex FHD** | Light desktop, smoother |
-| **Dex 2K** | Crispest |
+## Install by distro
+
+**Arch / CachyOS:** `sudo pacman -S scrcpy android-tools`
+**Fedora:** `sudo dnf install scrcpy android-tools`
+**Debian/Ubuntu:** `sudo apt install scrcpy adb`
+  *(if your distro's scrcpy is older than 3, grab the official release from
+  scrcpy.github.io instead)*
+
+The script below picks the right one automatically.
 
 ## Mirror vs DeX
 
 - **Mirror** = real screen, touch, 120Hz, no windows
-- **DeX** = virtual screen, windows + taskbar, always 60Hz
+- **DeX** = virtual screen, windows + taskbar, always 60Hz (Android limit)
 
-60Hz is an Android limit. Competitive FPS → use Mirror Phone.
+## Most important options
 
-## Flags
-
-| Flag | Meaning |
+| Flag | Does |
 |---|---|
-| `--new-display=1920x1200/224` | Virtual screen. `/224` = icon size, free. Not refresh rate |
-| `--gamepad=uhid` | Required — controllers aren't sent by default |
-| `-M` | Real mouse. Traps your cursor (`Alt+M` frees) |
+| `--new-display=WxH/DPI` | Virtual screen. `/DPI` = icon size (free). Not fps |
+| `--gamepad=uhid` | Controller (off by default, required) |
+| `-M` | True mouse. Traps cursor (`Alt+M` free) |
 | `-m1920` | Smaller video stream. Omit for full quality |
 | `-b16M` | More bitrate if text is blocky |
 
-## Bigger DeX UI
-
-Icon size needs a phone-side setting, not a flag:
-
-```bash
-./scripts/dex-zoom.sh 280     # restart scrcpy after
-```
+Bigger DeX icons (phone-side, not a flag): `./scripts/dex-zoom.sh 280` then
+restart scrcpy.
 
 ## Fixes
 
 | Problem | Fix |
 |---|---|
-| Games look worse in DeX | Game renders less for a 60Hz screen. Try `Game Booster Plus` |
-| Controller stick dead | Rebind in the game's own controls |
-| Back-swipe gone | `Settings → Display → Navigation bar` → toggle Back gesture |
-| Phone not in adb | USB debugging off, or cable is charge-only |
+| Phone not in adb | USB debugging off, charge-only cable/port, or phone in USB-tethering — set File transfer / MTP |
 | Input ignored | Developer options → **USB debugging (Security settings)** → reboot |
-| Recents shows no apps | Known One UI 8 virtual-display bug — no fix. Use the app drawer |
-| Taskbar icons stay tiny | Samsung deleted the setting — no fix. `/DPI` sizes labels only. Use the app drawer |
-| | |
-
-Also note adb shows nothing if the **port* paid is charge-only or the phone rebooted into USB tethering — switch to File transfer / MTP in the USB notification.
+| Games look worse in DeX | Game renders less for the 60Hz screen — try Game Booster Plus |
+| Controller stick dead | Rebind in the game's own controls |
+| Back-swipe gone | Settings → Display → Navigation bar → toggle Back gesture |
+| Recents empty / taskbar icons tiny | Known One UI 8 virtual-display bugs — no fix. Use the app drawer |
 
 ## Won't work
 
-- Wine/Proton/VM — worse, wastes RAM
-- HDMI → laptop — no HDMI in port
-- Waydroid — separate Android, not your phone
-- `--gamepad=aoa` — broken, adb holds USB
+Wine/Proton/VM · HDMI → laptop (no HDMI-in) · Waydroid · `--gamepad=aoa`.
 
-## Key Mapper
+Floating macro buttons: **Key Mapper** (`io.github.sds100.keymapper`, FOSS).
 
-Floating macro buttons bound to keys (`io.github.sds100.keymapper`, FOSS).
-No joystick support.
-
-## More
-
-- `CHEATSHEET.md` — all commands
-- `NOTES.md` — dead ends, don't retry
+**See `CHEATSHEET.md` for every command, `NOTES.md` for dead ends.**

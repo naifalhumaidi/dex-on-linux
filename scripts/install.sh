@@ -1,89 +1,54 @@
 #!/usr/bin/env bash
-# Install everything needed for scrcpy + Samsung DeX on Arch/CachyOS.
-# Idempotent: safe to re-run. Never touches anything outside pacman + ~/.local.
+# Install scrcpy + adb, icons, and 3 launchers. Idempotent. DRY=1 to preview.
+# Tested on CachyOS. Should work on any modern distro with scrcpy 3+.
 set -euo pipefail
-
 DRY="${DRY:-0}"
+say() { printf '\n\033[1;36m==> %s\033[0m\n' "$*"; }
+exec_if() { [ "$DRY" = "1" ] && echo "  DRY: $*" || "$@"; }
 
-say()  { printf '\n\033[1;36m==> %s\033[0m\n' "$*"; }
-run()  { if [ "$DRY" = "1" ]; then echo "  DRY: $*"; else "$@"; fi; }
-
-# ---------------------------------------------------------------- packages
-say "Checking packages"
-PKGS=(scrcpy android-tools)
-MISSING=()
-for p in "${PKGS[@]}"; do
-  if pacman -Qq 2>/dev/null | grep -qx "$p"; then
-    echo "  ok      $p"
-  else
-    echo "  MISSING $p"
-    MISSING+=("$p")
-  fi
-done
-
-if [ ${#MISSING[@]} -gt 0 ]; then
-  say "Installing: ${MISSING[*]}"
-  echo "  Needs sudo. Size is small (~10-20 MB total, no build step)."
-  if [ "$DRY" = "1" ]; then
-    echo "  DRY: sudo pacman -S --needed ${MISSING[*]}"
-  else
-    sudo pacman -S --needed "${MISSING[@]}"
-  fi
+say "Packages"
+if command -v scrcpy >/dev/null && command -v adb >/dev/null; then
+  echo "  scrcpy and adb already present — skipping"
 else
-  say "All packages present, skipping pacman"
+  if command -v pacman >/dev/null; then P=(sudo pacman -S --needed scrcpy android-tools)
+  elif command -v dnf    >/dev/null; then P=(sudo dnf install -y scrcpy android-tools)
+  elif command -v apt    >/dev/null; then P=(sudo apt install -y scrcpy adb)
+  else
+    echo "  No known package manager. Install scrcpy 3+ and adb manually:"
+    echo "    scrcpy: https://github.com/Genymobile/scrcpy/releases"
+    exit 1
+  fi
+  echo "  Running: ${P[*]}"
+  exec_if "${P[@]}"
 fi
 
-# ---------------------------------------------------------------- icons
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-ICON_SRC="$HERE/../icons"
 
-say "Installing icons"
-if [ -d "$ICON_SRC" ]; then
-  if [ "$DRY" = "1" ]; then
-    echo "  DRY: would copy $(basename -a "$ICON_SRC"/*.svg) -> ~/.local/share/icons/"
-  else
-    mkdir -p ~/.local/share/icons
-    cp -v "$ICON_SRC"/*.svg ~/.local/share/icons/ 2>/dev/null || true
-  fi
-else
-  echo "  icons/ not found next to this script, skipping"
-fi
+say "Icons"
+mkdir -p ~/.local/share/icons
+exec_if cp "$HERE"/../icons/*.svg ~/.local/share/icons/ || true
 
-# ---------------------------------------------------------------- launchers
-say "Installing launchers"
+say "Launchers"
 for f in "$HERE"/../launchers/*.desktop.in; do
-  [ -e "$f" ] || { echo "  launchers/ not found, skipping"; break; }
+  [ -e "$f" ] || continue
   name="$(basename "$f" .desktop.in)"
-  target=~/.local/share/applications/"$name.desktop"
-  if [ "$DRY" = "1" ]; then
-    echo "  DRY: would write $target"
-    continue
-  fi
-  sed "s|@ICON_DIR@|$HOME/.local/share/icons|g" "$f" > "$target"
-  chmod +x "$target"
+  if [ "$DRY" = "1" ]; then echo "  DRY: write $name.desktop"; continue; fi
+  sed "s|@ICON_DIR@|$HOME/.local/share/icons|g" "$f" > ~/.local/share/applications/"$name.desktop"
+  chmod +x ~/.local/share/applications/"$name.desktop"
   echo "  installed $name"
 done
 
-if [ "$DRY" = "1" ]; then
-  say "Dry run complete, nothing was changed."
-  exit 0
-fi
-
+[ "$DRY" = "1" ] && { say "Dry run done, nothing changed"; exit 0; }
 update-desktop-database ~/.local/share/applications 2>/dev/null || true
 command -v kbuildsycoca6 >/dev/null && kbuildsycoca6 --noincremental 2>/dev/null || true
-command -v gtk-update-icon-cache >/dev/null && gtk-update-icon-cache -f -t ~/.local/share/icons 2>/dev/null || true
 
-say "Done. Look for 'Mirror Phone', 'Dex FHD', 'Dex 2K' in your app menu."
+say "Done. Look for: Mirror Phone, Dex FHD, Dex 2K"
 cat <<EOF
 
-Next steps (on the PHONE, one time):
-  1. Settings -> About phone -> Software information
-  2. Tap "Build number" 7 times
-  3. Settings -> Developer options -> enable "USB debugging"
-  4. Plug in USB cable, choose "File transfer / MTP"
-  5. Accept "Allow USB debugging?" on the phone (tick Always allow)
+On the phone, once:
+  Build number x7 -> Developer options -> USB debugging ON
+  Plug in USB -> choose File transfer / MTP -> Accept the prompt
 
-Verify from the PC:
-  adb devices        # should list your phone as "device"
-
+From the PC:
+  adb devices
 EOF

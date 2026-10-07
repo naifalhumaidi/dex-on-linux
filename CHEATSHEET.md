@@ -5,7 +5,7 @@
 ./scripts/install.sh
 adb devices
 ```
-Phone: Build number ×7 → Developer options → USB debugging ON.
+Phone: Build number ×7 → Developer options → USB debugging ON → File transfer.
 
 ## Launchers
 | Name | Command |
@@ -14,12 +14,11 @@ Phone: Build number ×7 → Developer options → USB debugging ON.
 | Dex FHD | `scrcpy --new-display=1920x1200/224 --fullscreen --gamepad=uhid` |
 | Dex 2K | `scrcpy --new-display=2560x1600/224 --fullscreen --gamepad=uhid` |
 
-## Screen sizes
+## Sizes
 ```bash
-scrcpy --new-display=1368x912/224   --fullscreen --gamepad=uhid  # big UI
-scrcpy --new-display=1920x1200/224  --fullscreen --gamepad=uhid  # balanced
-scrcpy --new-display=2560x1600/224  --fullscreen --gamepad=uhid  # crisp
-scrcpy --new-display=2560x1600/224 -m1920 --fullscreen --gamepad=uhid # light
+scrcpy --new-display=1368x912/224  --fullscreen --gamepad=uhid   # biggest UI
+scrcpy --new-display=1920x1200/224 --fullscreen --gamepad=uhid   # balanced
+scrcpy --new-display=2560x1600/224 --fullscreen --gamepad=uhid   # crisp
 ```
 
 ## DeX icon size
@@ -29,15 +28,13 @@ scrcpy --new-display=2560x1600/224 -m1920 --fullscreen --gamepad=uhid # light
 
 ## Input
 ```bash
-scrcpy --gamepad=uhid     # controller
-scrcpy -M                 # real mouse, traps cursor (Alt+M frees)
-# not --gamepad=aoa
+scrcpy --gamepad=uhid   # controller (required)
+scrcpy -M               # true mouse, traps cursor (Alt+M frees)
 ```
 
 ## Apps
 ```bash
 adb install -r app.apk
-adb uninstall <package>
 for f in *.apk; do adb install -r "$f"; done
 ```
 
@@ -47,10 +44,9 @@ for f in *.apk; do adb install -r "$f"; done
 
 ## Check
 ```bash
-adb shell wm size        # native res
+adb shell wm size
 scrcpy --list-displays
 scrcpy --list-apps
-scrcpy --print-fps
 adb shell am start -n <pkg>/<activity> --display <id>
 ```
 
@@ -64,5 +60,5 @@ scrcpy --tcpip --new-display=1920x1200/224 --fullscreen --gamepad=uhid
 ```bash
 rm ~/.local/share/applications/{dex-fhd,dex-2k,mirror-phone}.desktop \
    ~/.local/share/icons/{dex-monitor,phone-mirror}.svg
-adb shell settings put global screen_zoom_on_external_desktop_display 160   # reset
+adb shell settings put global screen_zoom_on_external_desktop_display 160
 ```
