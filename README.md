@@ -1,7 +1,7 @@
 # scrcpy + DeX on Linux
 
 Use your Galaxy as a Linux desktop. Replaces the retired **DeX for PC** app.
-**Tested only on CachyOS/KDE with a Galaxy Z Fold 6 (Android 16).** Should work
+Should work
 on any distro with scrcpy 3+.
 
 ## TL;DR
