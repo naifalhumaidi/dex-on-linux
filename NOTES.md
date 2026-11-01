@@ -1,4 +1,4 @@
-# Notes — dead ends, don't retry
+# Notes — dead ends:
 
 ## Works
 - `scrcpy --new-display=WxH/DPI` — the whole trick. DeX renders onto a virtual screen
